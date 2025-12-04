@@ -34,62 +34,52 @@ export const getBarbers = async (req, res) => {
         const [barbers] = await pool.query(query, params);
 
         res.status(200).json({
-            success: true,
-            count: barbers.length,
             data: barbers
         });
     } catch (error) {
         console.error('GetBarbers error:', error);
         res.status(500).json({
-            success: false,
-            message: 'Error al obtener barberos'
+            error: 'Error al obtener barberos'
         });
     }
 };
 
-// @desc    Obtener un barbero por ID
-// @route   GET /api/barbers/:id
-// @access  Public
 export const getBarber = async (req, res) => {
     try {
         const [barbers] = await pool.query(
-            `
-      SELECT 
-        b.id,
-        b.user_id,
-        b.specialty,
-        b.bio,
-        b.image_url,
-        b.is_active,
-        u.name,
-        u.email,
-        u.phone
-      FROM barbers b
-      INNER JOIN users u ON b.user_id = u.id
-      WHERE b.id = ?
-      `,
+            `SELECT 
+                b.id,
+                b.user_id,
+                b.specialty,
+                b.bio,
+                b.image_url,
+                b.is_active,
+                u.name,
+                u.email,
+                u.phone
+             FROM barbers b
+             INNER JOIN users u ON b.user_id = u.id
+             WHERE b.id = ?`,
             [req.params.id]
         );
 
         if (barbers.length === 0) {
             return res.status(404).json({
-                success: false,
-                message: 'Barbero no encontrado'
+                error: 'Barbero no encontrado'
             });
         }
 
         res.status(200).json({
-            success: true,
             data: barbers[0]
         });
     } catch (error) {
         console.error('GetBarber error:', error);
         res.status(500).json({
-            success: false,
-            message: 'Error al obtener barbero'
+            error: 'Error al obtener barbero'
         });
     }
 };
+
 
 // @desc    Obtener horarios de un barbero
 // @route   GET /api/barbers/:id/schedule
@@ -224,5 +214,293 @@ export const getBarberAvailability = async (req, res) => {
             success: false,
             message: 'Error al obtener disponibilidad'
         });
+    }
+
+};
+
+// @desc    Crear un barbero
+// @route   POST /api/barbers
+// @access  Admin
+export const createBarber = async (req, res) => {
+    const connection = await pool.getConnection();
+    
+    try {
+        await connection.beginTransaction();
+
+        const { name, email, password, specialty, bio, image_url, is_active, phone } = req.body;
+
+        // Validaciones
+        if (!name || !email || !password) {
+            await connection.rollback();
+            return res.status(400).json({ 
+                error: 'Nombre, email y contraseña son requeridos' 
+            });
+        }
+
+        if (password.length < 6) {
+            await connection.rollback();
+            return res.status(400).json({ 
+                error: 'La contraseña debe tener al menos 6 caracteres' 
+            });
+        }
+
+        // Verificar si el email ya existe
+        const [existingUser] = await connection.query(
+            'SELECT id FROM users WHERE email = ?',
+            [email]
+        );
+
+        if (existingUser.length > 0) {
+            await connection.rollback();
+            return res.status(400).json({ 
+                error: 'El email ya está registrado' 
+            });
+        }
+
+        // Hash de la contraseña
+        const bcrypt = await import('bcryptjs');
+        const hashedPassword = await bcrypt.default.hash(password, 10);
+
+        // 1. Crear el usuario con rol 'barber'
+        const [userResult] = await connection.query(
+            `INSERT INTO users (name, email, password, role, phone) 
+             VALUES (?, ?, ?, 'barber', ?)`,
+            [name, email, hashedPassword, phone || null]
+        );
+
+        const userId = userResult.insertId;
+
+        // 2. Crear el barbero
+        const [barberResult] = await connection.query(
+            `INSERT INTO barbers (user_id, specialty, bio, image_url, is_active) 
+             VALUES (?, ?, ?, ?, ?)`,
+            [userId, specialty || null, bio || null, image_url || null, is_active !== false ? 1 : 0]
+        );
+
+        await connection.commit();
+
+        // Obtener el barbero completo con info del usuario
+        const [newBarber] = await connection.query(
+            `SELECT 
+                b.id,
+                b.user_id,
+                b.specialty,
+                b.bio,
+                b.image_url,
+                b.is_active,
+                u.name,
+                u.email,
+                u.phone
+             FROM barbers b
+             INNER JOIN users u ON b.user_id = u.id
+             WHERE b.id = ?`,
+            [barberResult.insertId]
+        );
+
+        res.status(201).json({
+            data: newBarber[0],
+            message: 'Barbero creado exitosamente'
+        });
+    } catch (error) {
+        await connection.rollback();
+        console.error('CreateBarber error:', error);
+        res.status(500).json({
+            error: 'Error al crear el barbero'
+        });
+    } finally {
+        connection.release();
+    }
+};
+
+// @desc    Actualizar un barbero
+// @route   PUT /api/barbers/:id
+// @access  Admin
+export const updateBarber = async (req, res) => {
+    const connection = await pool.getConnection();
+    
+    try {
+        await connection.beginTransaction();
+
+        const { id } = req.params;
+        const { name, email, specialty, bio, image_url, is_active, phone } = req.body;
+
+        // Verificar si el barbero existe
+        const [existing] = await connection.query(
+            'SELECT user_id FROM barbers WHERE id = ?',
+            [id]
+        );
+        
+        if (existing.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({
+                error: 'Barbero no encontrado'
+            });
+        }
+
+        const barber = existing[0];
+
+        // Actualizar usuario si se proporcionó name, email o phone
+        if (name !== undefined || email !== undefined || phone !== undefined) {
+            const userUpdates = [];
+            const userValues = [];
+
+            if (name !== undefined) {
+                userUpdates.push('name = ?');
+                userValues.push(name);
+            }
+            if (email !== undefined) {
+                // Verificar que el email no esté en uso por otro usuario
+                const [emailCheck] = await connection.query(
+                    'SELECT id FROM users WHERE email = ? AND id != ?',
+                    [email, barber.user_id]
+                );
+                if (emailCheck.length > 0) {
+                    await connection.rollback();
+                    return res.status(400).json({
+                        error: 'El email ya está en uso'
+                    });
+                }
+                userUpdates.push('email = ?');
+                userValues.push(email);
+            }
+            if (phone !== undefined) {
+                userUpdates.push('phone = ?');
+                userValues.push(phone);
+            }
+
+            if (userUpdates.length > 0) {
+                userValues.push(barber.user_id);
+                await connection.query(
+                    `UPDATE users SET ${userUpdates.join(', ')} WHERE id = ?`,
+                    userValues
+                );
+            }
+        }
+
+        // Actualizar barbero
+        const barberUpdates = [];
+        const barberValues = [];
+
+        if (specialty !== undefined) {
+            barberUpdates.push('specialty = ?');
+            barberValues.push(specialty);
+        }
+        if (bio !== undefined) {
+            barberUpdates.push('bio = ?');
+            barberValues.push(bio);
+        }
+        if (image_url !== undefined) {
+            barberUpdates.push('image_url = ?');
+            barberValues.push(image_url);
+        }
+        if (is_active !== undefined) {
+            barberUpdates.push('is_active = ?');
+            barberValues.push(is_active ? 1 : 0);
+        }
+
+        if (barberUpdates.length > 0) {
+            barberValues.push(id);
+            await connection.query(
+                `UPDATE barbers SET ${barberUpdates.join(', ')} WHERE id = ?`,
+                barberValues
+            );
+        }
+
+        await connection.commit();
+
+        // Obtener el barbero actualizado
+        const [updated] = await connection.query(
+            `SELECT 
+                b.id,
+                b.user_id,
+                b.specialty,
+                b.bio,
+                b.image_url,
+                b.is_active,
+                u.name,
+                u.email,
+                u.phone
+             FROM barbers b
+             INNER JOIN users u ON b.user_id = u.id
+             WHERE b.id = ?`,
+            [id]
+        );
+
+        res.status(200).json({
+            data: updated[0],
+            message: 'Barbero actualizado exitosamente'
+        });
+    } catch (error) {
+        await connection.rollback();
+        console.error('UpdateBarber error:', error);
+        res.status(500).json({
+            error: 'Error al actualizar el barbero'
+        });
+    } finally {
+        connection.release();
+    }
+};
+
+// @desc    Eliminar un barbero
+// @route   DELETE /api/barbers/:id
+// @access  Admin
+export const deleteBarber = async (req, res) => {
+    const connection = await pool.getConnection();
+    
+    try {
+        await connection.beginTransaction();
+
+        const { id } = req.params;
+
+        // Verificar si el barbero existe
+        const [existing] = await connection.query(
+            'SELECT user_id FROM barbers WHERE id = ?',
+            [id]
+        );
+        
+        if (existing.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({
+                error: 'Barbero no encontrado'
+            });
+        }
+
+        const barber = existing[0];
+
+        // Verificar si tiene citas asociadas
+        const [appointments] = await connection.query(
+            'SELECT COUNT(*) as count FROM appointments WHERE barber_id = ?',
+            [id]
+        );
+
+        if (appointments[0].count > 0) {
+            // Soft delete: marcar como inactivo
+            await connection.query(
+                'UPDATE barbers SET is_active = 0 WHERE id = ?',
+                [id]
+            );
+            await connection.commit();
+            return res.status(200).json({ 
+                message: 'Barbero desactivado (tiene citas asociadas)' 
+            });
+        }
+
+        // Si no tiene citas, eliminar completamente
+        // Por el CASCADE, esto también eliminará el usuario
+        await connection.query('DELETE FROM barbers WHERE id = ?', [id]);
+
+        await connection.commit();
+
+        res.status(200).json({ 
+            message: 'Barbero eliminado exitosamente' 
+        });
+    } catch (error) {
+        await connection.rollback();
+        console.error('DeleteBarber error:', error);
+        res.status(500).json({
+            error: 'Error al eliminar el barbero'
+        });
+    } finally {
+        connection.release();
     }
 };

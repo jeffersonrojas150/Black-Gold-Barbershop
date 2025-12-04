@@ -69,15 +69,12 @@ export const getAppointments = async (req, res) => {
         const [appointments] = await pool.query(query, params);
 
         res.status(200).json({
-            success: true,
-            count: appointments.length,
             data: appointments
         });
     } catch (error) {
         console.error('GetAppointments error:', error);
         res.status(500).json({
-            success: false,
-            message: 'Error al obtener citas'
+            error: 'Error al obtener citas'
         });
     }
 };
@@ -108,8 +105,7 @@ export const getAppointment = async (req, res) => {
 
         if (appointments.length === 0) {
             return res.status(404).json({
-                success: false,
-                message: 'Cita no encontrada'
+                error: 'Cita no encontrada'
             });
         }
 
@@ -121,8 +117,7 @@ export const getAppointment = async (req, res) => {
 
         if (userRole === 'client' && appointment.client_id !== userId) {
             return res.status(403).json({
-                success: false,
-                message: 'No tienes permiso para ver esta cita'
+                error: 'No tienes permiso para ver esta cita'
             });
         }
 
@@ -133,21 +128,18 @@ export const getAppointment = async (req, res) => {
             );
             if (barberData.length === 0 || barberData[0].id !== appointment.barber_id) {
                 return res.status(403).json({
-                    success: false,
-                    message: 'No tienes permiso para ver esta cita'
+                    error: 'No tienes permiso para ver esta cita'
                 });
             }
         }
 
         res.status(200).json({
-            success: true,
             data: appointment
         });
     } catch (error) {
         console.error('GetAppointment error:', error);
         res.status(500).json({
-            success: false,
-            message: 'Error al obtener cita'
+            error: 'Error al obtener cita'
         });
     }
 };
@@ -160,8 +152,7 @@ export const createAppointment = async (req, res) => {
         // Validar que todos los campos estén presentes
         if (!barber_id || !service_id || !appointment_date || !appointment_time) {
             return res.status(400).json({
-                success: false,
-                message: 'Todos los campos son requeridos'
+                error: 'Todos los campos son requeridos'
             });
         }
 
@@ -171,8 +162,7 @@ export const createAppointment = async (req, res) => {
 
         if (appointmentDateTime <= now) {
             return res.status(400).json({
-                success: false,
-                message: 'La fecha y hora de la cita debe ser futura'
+                error: 'La fecha y hora de la cita debe ser futura'
             });
         }
 
@@ -184,8 +174,7 @@ export const createAppointment = async (req, res) => {
 
         if (barbers.length === 0) {
             return res.status(404).json({
-                success: false,
-                message: 'Barbero no encontrado o no disponible'
+                error: 'Barbero no encontrado o no disponible'
             });
         }
 
@@ -197,8 +186,7 @@ export const createAppointment = async (req, res) => {
 
         if (services.length === 0) {
             return res.status(404).json({
-                success: false,
-                message: 'Servicio no encontrado o no disponible'
+                error: 'Servicio no encontrado o no disponible'
             });
         }
 
@@ -214,8 +202,7 @@ export const createAppointment = async (req, res) => {
 
         if (schedules.length === 0) {
             return res.status(400).json({
-                success: false,
-                message: 'El barbero no está disponible en ese día'
+                error: 'El barbero no está disponible en ese día'
             });
         }
 
@@ -225,8 +212,7 @@ export const createAppointment = async (req, res) => {
 
         if (appointmentTimeStr < schedule.start_time || appointmentTimeStr >= schedule.end_time) {
             return res.status(400).json({
-                success: false,
-                message: 'El horario seleccionado está fuera del horario laboral'
+                error: 'El horario seleccionado está fuera del horario laboral'
             });
         }
 
@@ -260,11 +246,12 @@ export const createAppointment = async (req, res) => {
                 (appointmentStart <= conflictStart && appointmentEnd >= conflictEnd)
             ) {
                 return res.status(400).json({
-                    success: false,
-                    message: 'El horario seleccionado no está disponible'
+                    error: 'El horario seleccionado no está disponible'
                 });
             }
         }
+
+
 
         // Crear la cita
         const [result] = await pool.query(
@@ -293,15 +280,13 @@ export const createAppointment = async (req, res) => {
         );
 
         res.status(201).json({
-            success: true,
-            message: 'Cita creada exitosamente',
-            data: newAppointment[0]
+            data: newAppointment[0],
+            message: 'Cita creada exitosamente'
         });
     } catch (error) {
         console.error('CreateAppointment error:', error);
         res.status(500).json({
-            success: false,
-            message: 'Error al crear cita'
+            error: 'Error al crear cita'
         });
     }
 };
@@ -314,8 +299,14 @@ export const updateAppointmentStatus = async (req, res) => {
 
         if (!['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) {
             return res.status(400).json({
-                success: false,
-                message: 'Estado inválido'
+                error: 'Estado inválido'
+            });
+        }
+
+        // Validar que barberos solo puedan marcar como completadas
+        if (req.user.role === 'barber' && status !== 'completed') {
+            return res.status(403).json({
+                error: 'Los barberos solo pueden marcar citas como completadas'
             });
         }
 
@@ -327,8 +318,7 @@ export const updateAppointmentStatus = async (req, res) => {
 
         if (appointments.length === 0) {
             return res.status(404).json({
-                success: false,
-                message: 'Cita no encontrada'
+                error: 'Cita no encontrada'
             });
         }
 
@@ -342,15 +332,13 @@ export const updateAppointmentStatus = async (req, res) => {
             // Los clientes solo pueden cancelar sus propias citas
             if (appointment.client_id !== userId) {
                 return res.status(403).json({
-                    success: false,
-                    message: 'No tienes permiso para modificar esta cita'
+                    error: 'No tienes permiso para modificar esta cita'
                 });
             }
 
             if (status !== 'cancelled') {
                 return res.status(403).json({
-                    success: false,
-                    message: 'Solo puedes cancelar citas'
+                    error: 'Solo puedes cancelar citas'
                 });
             }
 
@@ -362,8 +350,7 @@ export const updateAppointmentStatus = async (req, res) => {
 
             if (diffDays < 2) {
                 return res.status(400).json({
-                    success: false,
-                    message: 'Las citas deben cancelarse con al menos 2 días de anticipación'
+                    error: 'Las citas deben cancelarse con al menos 2 días de anticipación'
                 });
             }
         }
@@ -394,15 +381,13 @@ export const updateAppointmentStatus = async (req, res) => {
         );
 
         res.status(200).json({
-            success: true,
-            message: 'Estado de cita actualizado exitosamente',
-            data: updatedAppointment[0]
+            data: updatedAppointment[0],
+            message: 'Estado de cita actualizado exitosamente'
         });
     } catch (error) {
         console.error('UpdateAppointmentStatus error:', error);
         res.status(500).json({
-            success: false,
-            message: 'Error al actualizar estado de cita'
+            error: 'Error al actualizar estado de cita'
         });
     }
 };
@@ -417,22 +402,19 @@ export const deleteAppointment = async (req, res) => {
 
         if (appointments.length === 0) {
             return res.status(404).json({
-                success: false,
-                message: 'Cita no encontrada'
+                error: 'Cita no encontrada'
             });
         }
 
         await pool.query('DELETE FROM appointments WHERE id = ?', [req.params.id]);
 
         res.status(200).json({
-            success: true,
             message: 'Cita eliminada exitosamente'
         });
     } catch (error) {
         console.error('DeleteAppointment error:', error);
         res.status(500).json({
-            success: false,
-            message: 'Error al eliminar cita'
+            error: 'Error al eliminar cita'
         });
     }
 };
@@ -492,7 +474,6 @@ export const getAppointmentStats = async (req, res) => {
         }
 
         res.status(200).json({
-            success: true,
             data: {
                 total: totalResult[0].total,
                 byStatus: statusResult,
@@ -503,8 +484,7 @@ export const getAppointmentStats = async (req, res) => {
     } catch (error) {
         console.error('GetAppointmentStats error:', error);
         res.status(500).json({
-            success: false,
-            message: 'Error al obtener estadísticas'
+            error: 'Error al obtener estadísticas'
         });
     }
 };
