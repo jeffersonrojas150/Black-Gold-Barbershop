@@ -34,7 +34,7 @@ export const Navbar = () => {
     };
 
     return (
-      <span 
+      <span
         className={`px-3 py-1 rounded-full text-xs border ${roleColors[user?.role || 'client']}`}
         style={{ fontWeight: 400 }}
       >
@@ -44,9 +44,9 @@ export const Navbar = () => {
   };
 
   return (
-    <nav 
+    <nav
       className="border-b sticky top-0 z-50"
-      style={{ 
+      style={{
         backgroundColor: 'var(--color-dark)',
         borderColor: 'var(--color-dark-lighter)'
       }}
@@ -54,68 +54,72 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo con línea divisoria elegante */}
-          <Link href="/dashboard" className="flex items-center">
-            <div className="relative">
-              <span 
-                className="text-3xl font-bold tracking-wider"
-                style={{ 
+          <Link href="/dashboard" className="flex items-center space-x-3">
+            <img
+              src="/logo.png"
+              alt="Black Gold Barbershop"
+              className="h-12 w-auto"
+            />
+            <div className="hidden sm:flex items-center">
+              <div className="relative">
+                <span
+                  className="text-3xl font-bold tracking-wider"
+                  style={{
+                    color: 'var(--color-primary)',
+                    fontFamily: 'var(--font-display)'
+                  }}
+                >
+                  Black
+                </span>
+                <div
+                  className="absolute top-1/2 left-0 right-0 h-[2px] opacity-30"
+                  style={{
+                    backgroundColor: 'var(--color-primary)',
+                    transform: 'translateY(-50%) rotate(-5deg)'
+                  }}
+                ></div>
+              </div>
+              <span
+                className="text-3xl font-bold tracking-wider ml-1"
+                style={{
                   color: 'var(--color-primary)',
                   fontFamily: 'var(--font-display)'
                 }}
               >
-                Black
+                Gold
               </span>
-              <div 
-                className="absolute top-1/2 left-0 right-0 h-[2px] opacity-30"
-                style={{ 
-                  backgroundColor: 'var(--color-primary)',
-                  transform: 'translateY(-50%) rotate(-5deg)'
-                }}
-              ></div>
             </div>
-            <span 
-              className="text-3xl font-bold tracking-wider ml-1"
-              style={{ 
-                color: 'var(--color-primary)',
-                fontFamily: 'var(--font-display)'
-              }}
-            >
-              Gold
-            </span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link 
-              href="/dashboard" 
-              className={`transition-colors font-light ${
-                isActive('/dashboard') 
-                  ? 'text-yellow-400' 
-                  : 'text-gray-300 hover:text-white'
-              }`}
+            <Link
+              href="/dashboard"
+              className={`transition-colors font-light ${isActive('/dashboard')
+                ? 'text-yellow-400'
+                : 'text-gray-300 hover:text-white'
+                }`}
             >
               Dashboard
             </Link>
 
             {user?.role === 'client' && (
               <>
-                <Link 
-                  href="/appointments/new" 
-                  className={`transition-colors font-light ${
-                    isActive('/appointments/new') 
-                      ? 'text-yellow-400' 
-                      : 'text-gray-300 hover:text-white'
-                  }`}
+                <Link
+                  href="/appointments/new"
+                  className={`transition-colors font-light ${isActive('/appointments/new')
+                    ? 'text-yellow-400'
+                    : 'text-gray-300 hover:text-white'
+                    }`}
                 >
                   Nueva Cita
                 </Link>
-                <Link 
-                  href="/appointments" 
-                  className={`transition-colors font-light ${
-                    pathname === '/appointments'
-                      ? 'text-yellow-400' 
-                      : 'text-gray-300 hover:text-white'
-                  }`}
+                <Link
+                  href="/appointments"
+                  className={`transition-colors font-light ${pathname === '/appointments'
+                    ? 'text-yellow-400'
+                    : 'text-gray-300 hover:text-white'
+                    }`}
                 >
                   Mis Citas
                 </Link>
@@ -124,33 +128,30 @@ export const Navbar = () => {
 
             {user?.role === 'admin' && (
               <>
-                <Link 
-                  href="/admin/services" 
-                  className={`transition-colors font-light ${
-                    isActive('/admin/services') 
-                      ? 'text-yellow-400' 
-                      : 'text-gray-300 hover:text-white'
-                  }`}
+                <Link
+                  href="/admin/services"
+                  className={`transition-colors font-light ${isActive('/admin/services')
+                    ? 'text-yellow-400'
+                    : 'text-gray-300 hover:text-white'
+                    }`}
                 >
                   Servicios
                 </Link>
-                <Link 
-                  href="/admin/barbers" 
-                  className={`transition-colors font-light ${
-                    isActive('/admin/barbers') 
-                      ? 'text-yellow-400' 
-                      : 'text-gray-300 hover:text-white'
-                  }`}
+                <Link
+                  href="/admin/barbers"
+                  className={`transition-colors font-light ${isActive('/admin/barbers')
+                    ? 'text-yellow-400'
+                    : 'text-gray-300 hover:text-white'
+                    }`}
                 >
                   Barberos
                 </Link>
-                <Link 
-                  href="/admin/appointments" 
-                  className={`transition-colors font-light ${
-                    isActive('/admin/appointments') 
-                      ? 'text-yellow-400' 
-                      : 'text-gray-300 hover:text-white'
-                  }`}
+                <Link
+                  href="/admin/appointments"
+                  className={`transition-colors font-light ${isActive('/admin/appointments')
+                    ? 'text-yellow-400'
+                    : 'text-gray-300 hover:text-white'
+                    }`}
                 >
                   Citas
                 </Link>
@@ -158,13 +159,12 @@ export const Navbar = () => {
             )}
 
             {user?.role === 'barber' && (
-              <Link 
-                href="/barber/appointments" 
-                className={`transition-colors font-light ${
-                  isActive('/barber/appointments') 
-                    ? 'text-yellow-400' 
-                    : 'text-gray-300 hover:text-white'
-                }`}
+              <Link
+                href="/barber/appointments"
+                className={`transition-colors font-light ${isActive('/barber/appointments')
+                  ? 'text-yellow-400'
+                  : 'text-gray-300 hover:text-white'
+                  }`}
               >
                 Mis Citas
               </Link>
@@ -214,47 +214,54 @@ export const Navbar = () => {
       {mobileMenuOpen && (
         <>
           {/* Overlay oscuro */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/70 z-40 md:hidden"
             onClick={() => setMobileMenuOpen(false)}
           ></div>
 
           {/* Sidebar */}
-          <div 
+          <div
             className="fixed top-0 left-0 bottom-0 w-72 z-50 md:hidden shadow-2xl overflow-y-auto"
             style={{ backgroundColor: 'var(--color-dark)' }}
           >
             {/* Header del Sidebar */}
             <div className="p-6 border-b" style={{ borderColor: 'var(--color-dark-lighter)' }}>
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <div className="relative">
-                    <span 
-                      className="text-2xl font-bold tracking-wider"
-                      style={{ 
+                <div className="flex items-center space-x-2">
+                  <img
+                    src="/logo.png"
+                    alt="Black Gold Barbershop"
+                    className="h-10 w-auto"
+                  />
+                  <div className="flex items-center">
+                    <div className="relative">
+                      <span
+                        className="text-2xl font-bold tracking-wider"
+                        style={{
+                          color: 'var(--color-primary)',
+                          fontFamily: 'var(--font-display)'
+                        }}
+                      >
+                        Black
+                      </span>
+                      <div
+                        className="absolute top-1/2 left-0 right-0 h-[2px] opacity-30"
+                        style={{
+                          backgroundColor: 'var(--color-primary)',
+                          transform: 'translateY(-50%) rotate(-5deg)'
+                        }}
+                      ></div>
+                    </div>
+                    <span
+                      className="text-2xl font-bold tracking-wider ml-1"
+                      style={{
                         color: 'var(--color-primary)',
                         fontFamily: 'var(--font-display)'
                       }}
                     >
-                      Black
+                      Gold
                     </span>
-                    <div 
-                      className="absolute top-1/2 left-0 right-0 h-[2px] opacity-30"
-                      style={{ 
-                        backgroundColor: 'var(--color-primary)',
-                        transform: 'translateY(-50%) rotate(-5deg)'
-                      }}
-                    ></div>
                   </div>
-                  <span 
-                    className="text-2xl font-bold tracking-wider ml-1"
-                    style={{ 
-                      color: 'var(--color-primary)',
-                      fontFamily: 'var(--font-display)'
-                    }}
-                  >
-                    Gold
-                  </span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
@@ -269,7 +276,7 @@ export const Navbar = () => {
 
               {/* User Info */}
               <div className="flex items-center space-x-3">
-                <div 
+                <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
                   style={{ backgroundColor: 'var(--color-primary)' }}
                 >
@@ -287,43 +294,40 @@ export const Navbar = () => {
 
             {/* Menu Items */}
             <div className="py-4">
-              <Link 
-                href="/dashboard" 
-                className={`flex items-center space-x-3 px-6 py-3 transition-colors ${
-                  isActive('/dashboard')
-                    ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
-                    : 'text-gray-300 hover:bg-gray-800'
-                }`}
+              <Link
+                href="/dashboard"
+                className={`flex items-center space-x-3 px-6 py-3 transition-colors ${isActive('/dashboard')
+                  ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
+                  : 'text-gray-300 hover:bg-gray-800'
+                  }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-            
+
                 <span className="font-light">Dashboard</span>
               </Link>
 
               {user?.role === 'client' && (
                 <>
-                  <Link 
-                    href="/appointments/new" 
-                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${
-                      isActive('/appointments/new')
-                        ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
-                        : 'text-gray-300 hover:bg-gray-800'
-                    }`}
+                  <Link
+                    href="/appointments/new"
+                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${isActive('/appointments/new')
+                      ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
+                      : 'text-gray-300 hover:bg-gray-800'
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    
+
                     <span className="font-light">Nueva Cita</span>
                   </Link>
-                  <Link 
-                    href="/appointments" 
-                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${
-                      pathname === '/appointments'
-                        ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
-                        : 'text-gray-300 hover:bg-gray-800'
-                    }`}
+                  <Link
+                    href="/appointments"
+                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${pathname === '/appointments'
+                      ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
+                      : 'text-gray-300 hover:bg-gray-800'
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    
+
                     <span className="font-light">Mis Citas</span>
                   </Link>
                 </>
@@ -331,37 +335,34 @@ export const Navbar = () => {
 
               {user?.role === 'admin' && (
                 <>
-                  <Link 
-                    href="/admin/services" 
-                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${
-                      isActive('/admin/services')
-                        ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
-                        : 'text-gray-300 hover:bg-gray-800'
-                    }`}
+                  <Link
+                    href="/admin/services"
+                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${isActive('/admin/services')
+                      ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
+                      : 'text-gray-300 hover:bg-gray-800'
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="text-xl">✂️</span>
                     <span className="font-light">Servicios</span>
                   </Link>
-                  <Link 
-                    href="/admin/barbers" 
-                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${
-                      isActive('/admin/barbers')
-                        ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
-                        : 'text-gray-300 hover:bg-gray-800'
-                    }`}
+                  <Link
+                    href="/admin/barbers"
+                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${isActive('/admin/barbers')
+                      ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
+                      : 'text-gray-300 hover:bg-gray-800'
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="text-xl">👨‍💼</span>
                     <span className="font-light">Barberos</span>
                   </Link>
-                  <Link 
-                    href="/admin/appointments" 
-                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${
-                      isActive('/admin/appointments')
-                        ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
-                        : 'text-gray-300 hover:bg-gray-800'
-                    }`}
+                  <Link
+                    href="/admin/appointments"
+                    className={`flex items-center space-x-3 px-6 py-3 transition-colors ${isActive('/admin/appointments')
+                      ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
+                      : 'text-gray-300 hover:bg-gray-800'
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="text-xl">📅</span>
@@ -371,13 +372,12 @@ export const Navbar = () => {
               )}
 
               {user?.role === 'barber' && (
-                <Link 
-                  href="/barber/appointments" 
-                  className={`flex items-center space-x-3 px-6 py-3 transition-colors ${
-                    isActive('/barber/appointments')
-                      ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
-                      : 'text-gray-300 hover:bg-gray-800'
-                  }`}
+                <Link
+                  href="/barber/appointments"
+                  className={`flex items-center space-x-3 px-6 py-3 transition-colors ${isActive('/barber/appointments')
+                    ? 'bg-yellow-400/10 border-l-4 border-yellow-400 text-yellow-400'
+                    : 'text-gray-300 hover:bg-gray-800'
+                    }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <span className="text-xl">📋</span>
@@ -390,7 +390,7 @@ export const Navbar = () => {
                 onClick={handleLogout}
                 className="flex items-center space-x-3 px-6 py-3 w-full text-left text-red-400 hover:bg-red-500/10 transition-colors mt-4"
               >
-                
+
                 <span className="font-light">Cerrar Sesión</span>
               </button>
             </div>
