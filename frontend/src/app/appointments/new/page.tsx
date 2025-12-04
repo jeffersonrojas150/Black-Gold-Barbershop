@@ -128,20 +128,26 @@ export default function NewAppointmentPage() {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <div className="mb-8">
+          <div className="text-center mb-12">
+          <div className="inline-block">
             <h1 
-              className="text-4xl font-bold mb-2"
-              style={{ 
-                color: 'var(--color-primary)',
-                fontFamily: 'var(--font-display)'
-              }}
+              className="text-yellow-400 font-light text-4xl tracking-wider mb-2"
+              style={{ fontWeight: 300 }}
             >
               Nueva Cita
             </h1>
-            <p className="text-gray-400 font-light">
-              Reserva tu próxima visita en 3 simples pasos
-            </p>
+            <div 
+              className="h-0.5 mx-auto"
+              style={{ 
+                width: '100%',
+                backgroundColor: 'var(--color-primary)'
+              }}
+            ></div>
           </div>
+          <p className="text-gray-400 font-light text-sm mt-4">
+            Reserva tu próxima visita en 3 simples pasos
+          </p>
+        </div>
 
           {/* Progress Steps */}
           <div className="flex items-center justify-center mb-8 space-x-4">

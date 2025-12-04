@@ -187,6 +187,55 @@ export const barbersService = {
     );
     return handleResponse<string[]>(response);
   },
+
+  async create(data: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string | null;
+    specialty?: string | null;
+    bio?: string | null;
+    image_url?: string | null;
+    is_active?: boolean;
+  }): Promise<ApiResponse<Barber>> {
+    const response = await fetch(`${API_URL}/barbers`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeader(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    return handleResponse<Barber>(response);
+  },
+
+  async update(id: number, data: {
+    name?: string;
+    email?: string | null;
+    phone?: string | null;
+    specialty?: string | null;
+    bio?: string | null;
+    image_url?: string | null;
+    is_active?: boolean;
+  }): Promise<ApiResponse<Barber>> {
+    const response = await fetch(`${API_URL}/barbers/${id}`, {
+      method: 'PUT',
+      headers: {
+        ...getAuthHeader(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    return handleResponse<Barber>(response);
+  },
+
+  async delete(id: number): Promise<ApiResponse<void>> {
+    const response = await fetch(`${API_URL}/barbers/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeader(),
+    });
+    return handleResponse<void>(response);
+  },
 };
 
 // ==================== APPOINTMENTS ====================

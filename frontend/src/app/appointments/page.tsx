@@ -120,20 +120,26 @@ export default function MyAppointmentsPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <div className="mb-8">
+          <div className="text-center mb-12">
+          <div className="inline-block">
             <h1 
-              className="text-4xl font-bold mb-2"
-              style={{ 
-                color: 'var(--color-primary)',
-                fontFamily: 'var(--font-display)'
-              }}
+              className="text-yellow-400 font-light text-4xl tracking-wider mb-2"
+              style={{ fontWeight: 300 }}
             >
               Mis Citas
             </h1>
-            <p className="text-gray-400 font-light">
-              Gestiona tus reservas y ve tu historial
-            </p>
+            <div 
+              className="h-0.5 mx-auto"
+              style={{ 
+                width: '100%',
+                backgroundColor: 'var(--color-primary)'
+              }}
+            ></div>
           </div>
+          <p className="text-gray-400 font-light text-sm mt-4">
+            Gestiona tus reservas y ve tu historial
+          </p>
+        </div>
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3 mb-6">

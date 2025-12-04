@@ -303,7 +303,7 @@ export default function AdminServicesPage() {
                   </div>
 
                   <Input
-                    label="URL de Imagen (opcional)"
+                    label="URL de Imagen"
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                     placeholder="https://ejemplo.com/imagen.jpg"

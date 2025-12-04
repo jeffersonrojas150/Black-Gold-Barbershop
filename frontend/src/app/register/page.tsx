@@ -104,7 +104,7 @@ export default function RegisterPage() {
             <Input
               type="tel"
               name="phone"
-              label="Teléfono (Opcional)"
+              label="Teléfono"
               placeholder="987654321"
               value={formData.phone}
               onChange={handleChange}

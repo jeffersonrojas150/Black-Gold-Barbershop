@@ -15,9 +15,12 @@ export default function AdminBarbersPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
+    phone: '',
     specialty: '',
     bio: '',
     image_url: '',
@@ -41,11 +44,14 @@ export default function AdminBarbersPage() {
   };
 
   const handleOpenModal = (barber?: Barber) => {
+    setError('');
     if (barber) {
       setEditingBarber(barber);
       setFormData({
         name: barber.name,
         email: barber.email || '',
+        password: '', // No mostramos la contraseña
+        phone: barber.phone || '',
         specialty: barber.specialty || '',
         bio: barber.bio || '',
         image_url: barber.image_url || '',
@@ -56,6 +62,8 @@ export default function AdminBarbersPage() {
       setFormData({
         name: '',
         email: '',
+        password: '',
+        phone: '',
         specialty: '',
         bio: '',
         image_url: '',
@@ -68,40 +76,87 @@ export default function AdminBarbersPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingBarber(null);
+    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setSaving(true);
 
     try {
-      const barberData = {
-        name: formData.name,
-        email: formData.email || null,
-        specialty: formData.specialty || null,
-        bio: formData.bio || null,
-        image_url: formData.image_url || null,
-        is_active: formData.is_active,
-      };
-
       if (editingBarber) {
-        alert('Función de editar barbero no implementada en el backend aún');
+        // Editar barbero - no enviamos password si está vacío
+        const updateData: any = {
+          name: formData.name,
+          email: formData.email || null,
+          phone: formData.phone || null,
+          specialty: formData.specialty || null,
+          bio: formData.bio || null,
+          image_url: formData.image_url || null,
+          is_active: formData.is_active,
+        };
+
+        await barbersService.update(editingBarber.id, updateData);
+        alert('Barbero actualizado exitosamente');
       } else {
-        alert('Función de crear barbero no implementada en el backend aún');
+        // Crear barbero - validar que password esté presente
+        if (!formData.password) {
+          setError('La contraseña es requerida para crear un barbero');
+          setSaving(false);
+          return;
+        }
+
+        if (formData.password.length < 6) {
+          setError('La contraseña debe tener al menos 6 caracteres');
+          setSaving(false);
+          return;
+        }
+
+        const createData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone || null,
+          specialty: formData.specialty || null,
+          bio: formData.bio || null,
+          image_url: formData.image_url || null,
+          is_active: formData.is_active,
+        };
+
+        await barbersService.create(createData);
+        alert('Barbero creado exitosamente');
       }
 
       handleCloseModal();
       loadBarbers();
     } catch (error: any) {
-      alert(error.message || 'Error al guardar el barbero');
+      setError(error.message || 'Error al guardar el barbero');
     } finally {
       setSaving(false);
     }
   };
 
+  const handleDelete = async (barber: Barber) => {
+    if (!confirm(`¿Estás seguro de eliminar a ${barber.name}?`)) {
+      return;
+    }
+
+    try {
+      await barbersService.delete(barber.id);
+      alert('Barbero eliminado exitosamente');
+      loadBarbers();
+    } catch (error: any) {
+      alert(error.message || 'Error al eliminar el barbero');
+    }
+  };
+
   const handleToggleActive = async (barber: Barber) => {
     try {
-      alert('Función de activar/desactivar barbero no implementada en el backend aún');
+      await barbersService.update(barber.id, {
+        is_active: !barber.is_active
+      });
+      alert(`Barbero ${!barber.is_active ? 'activado' : 'desactivado'} exitosamente`);
       loadBarbers();
     } catch (error: any) {
       alert(error.message || 'Error al actualizar el estado');
@@ -118,7 +173,7 @@ export default function AdminBarbersPage() {
           <div className="mb-8 text-center">
             <div className="inline-block">
               <h1 
-                className="text-gray-400 font-light text- 2xl tracking-wider mb-2"
+                className="text-gray-400 font-light text-4xl tracking-wider mb-2"
                 style={{ fontWeight: 300 }}
               >
                 Gestión de Barberos
@@ -157,7 +212,7 @@ export default function AdminBarbersPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {barbers.map((barber) => (
-                <Card key={barber.id} className="overflow-hidden rounded-xl transition-all hover:scale-105">
+                <Card key={barber.id} className="overflow-hidden">
                   <div className="relative h-48">
                     <img 
                       src={barber.image_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'} 
@@ -216,7 +271,7 @@ export default function AdminBarbersPage() {
                       <Button
                         size="sm"
                         variant="danger"
-                        onClick={() => alert('Eliminar no implementado')}
+                        onClick={() => handleDelete(barber)}
                         className="flex-1"
                       >
                         Eliminar
@@ -248,6 +303,12 @@ export default function AdminBarbersPage() {
                   {editingBarber ? 'Editar Barbero' : 'Nuevo Barbero'}
                 </h2>
 
+                {error && (
+                  <div className="mb-4 p-3 bg-red-500/10 border border-red-500 rounded-lg">
+                    <p className="text-red-500 text-sm font-light">{error}</p>
+                  </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input
                     label="Nombre Completo"
@@ -258,11 +319,30 @@ export default function AdminBarbersPage() {
                   />
 
                   <Input
-                    label="Email (opcional)"
+                    label="Email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required={!editingBarber}
                     placeholder="carlos@barbershop.com"
+                  />
+
+                  {!editingBarber && (
+                    <Input
+                      label="Contraseña"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      required
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                  )}
+
+                  <Input
+                    label="Teléfono"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="987654321"
                   />
 
                   <Input
@@ -291,7 +371,7 @@ export default function AdminBarbersPage() {
                   </div>
 
                   <Input
-                    label="URL de Imagen (opcional)"
+                    label="URL de Imagen"
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                     placeholder="https://ejemplo.com/foto.jpg"

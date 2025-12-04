@@ -66,16 +66,16 @@ export default function DashboardPage() {
         ) : (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Header */}
-            <div className="mb-10 text-center">
+            <div className="text-center mb-12">
               <div className="inline-block">
-                <p 
-                  className="text-gray-400 font-light text-3xl tracking-wider mb-2"
+                <h1 
+                  className="text-yellow-400 font-light text-4xl tracking-wider mb-2"
                   style={{ fontWeight: 300 }}
                 >
-                  {user?.role === 'admin' && 'Panel de administración'}
-                  {user?.role === 'barber' && 'Gestiona tus citas del día'}
-                  {user?.role === 'client' && 'Reserva tu próxima cita'}
-                </p>
+                  {user?.role === 'admin' && ' Hola Admin 👋'}
+                  {user?.role === 'barber' && ` Hola ${user?.name || 'Barbero'}👋`}
+                  {user?.role === 'client' && ` Hola ${user?.name || 'Cliente'}👋`}
+                </h1>
                 <div 
                   className="h-0.5 mx-auto"
                   style={{ 
@@ -84,6 +84,11 @@ export default function DashboardPage() {
                   }}
                 ></div>
               </div>
+              <p className="text-gray-400 font-light text-sm mt-4">
+                {user?.role === 'admin' && 'Panel de administración'}
+                {user?.role === 'barber' && 'Gestiona tus citas del día'}
+                {user?.role === 'client' && 'Reserva tu próxima cita'}
+              </p>
             </div>
 
             {/* Stats Grid (Admin y Barber) */}
