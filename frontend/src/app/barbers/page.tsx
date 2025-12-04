@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Navbar } from '@/components/layout/Navbar';
-import { Card } from '@/components/ui/Card';
+import Link from 'next/link';
 import { barbersService } from '@/services/api';
 import type { Barber } from '@/types';
-import { useAuth } from '@/lib/AuthContext';
+import { Card } from '@/components/ui/Card';
 
-export default function BarbersPage() {
-  const { isAuthenticated } = useAuth();
+export default function BarbersPublicPage() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +16,8 @@ export default function BarbersPage() {
 
   const loadBarbers = async () => {
     try {
-      const response = await barbersService.getAll(true);
+      setLoading(true);
+      const response = await barbersService.getAll(true); // Solo barberos activos
       setBarbers(response.data || []);
     } catch (error) {
       console.error('Error loading barbers:', error);
@@ -29,14 +28,88 @@ export default function BarbersPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-dark)' }}>
-      {isAuthenticated && <Navbar />}
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Navbar Simple */}
+      <nav className="border-b" style={{ borderColor: 'var(--color-dark-lighter)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="flex items-center">
+              <div className="relative">
+                <span 
+                  className="text-3xl font-bold tracking-wider"
+                  style={{ 
+                    color: 'var(--color-primary)',
+                    fontFamily: 'var(--font-display)'
+                  }}
+                >
+                  Black
+                </span>
+                <div 
+                  className="absolute top-1/2 left-0 right-0 h-[2px] opacity-30"
+                  style={{ 
+                    backgroundColor: 'var(--color-primary)',
+                    transform: 'translateY(-50%) rotate(-5deg)'
+                  }}
+                ></div>
+              </div>
+              <span 
+                className="text-3xl font-bold tracking-wider ml-1"
+                style={{ 
+                  color: 'var(--color-primary)',
+                  fontFamily: 'var(--font-display)'
+                }}
+              >
+                Gold
+              </span>
+            </Link>
+
+            <div className="flex items-center space-x-4">
+              <Link 
+                href="/"
+                className="text-gray-300 hover:text-white transition-colors font-light hidden sm:block"
+              >
+                Inicio
+              </Link>
+              <Link 
+                href="/services"
+                className="text-gray-300 hover:text-white transition-colors font-light hidden sm:block"
+              >
+                Servicios
+              </Link>
+              <Link 
+                href="/barbers"
+                className="text-yellow-400 font-light hidden sm:block"
+              >
+                Barberos
+              </Link>
+              <Link 
+                href="/login"
+                className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors hover:opacity-80"
+                style={{ backgroundColor: 'var(--color-dark-lighter)' }}
+              >
+                Iniciar Sesión
+              </Link>
+              <Link 
+                href="/register"
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-90"
+                style={{ 
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'var(--color-dark)'
+                }}
+              >
+                Registrarse
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-block">
             <h1 
-              className="text-gray-400 font-light text-4xl tracking-wider mb-2"
+              className="text-yellow-400 font-light text-4xl tracking-wider mb-2"
               style={{ fontWeight: 300 }}
             >
               Nuestros Barberos
@@ -44,17 +117,16 @@ export default function BarbersPage() {
             <div 
               className="h-0.5 mx-auto"
               style={{ 
-                width: '100%',
+                width: '60%',
                 backgroundColor: 'var(--color-primary)'
               }}
             ></div>
           </div>
           <p className="text-gray-400 font-light text-sm mt-4">
-            Profesionales expertos en el arte del cuidado masculino
+            Conoce a nuestro equipo de profesionales expertos
           </p>
         </div>
 
-        {/* Loading */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
@@ -66,12 +138,10 @@ export default function BarbersPage() {
             </div>
           </div>
         ) : (
-          /* Barbers Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {barbers.map((barber) => (
-              <Card key={barber.id} className="overflow-hidden hover:scale-105 transition-transform duration-300">
-                {/* Barber Image */}
-                <div className="relative h-64 overflow-hidden">
+              <Card key={barber.id} className="overflow-hidden hover:scale-105 transition-transform">
+                <div className="relative h-64">
                   <img 
                     src={barber.image_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'} 
                     alt={barber.name}
@@ -89,60 +159,89 @@ export default function BarbersPage() {
                   </div>
                 </div>
 
-                {/* Barber Info */}
                 <div className="p-6">
                   <div 
-                    className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-3"
+                    className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-3 border"
                     style={{ 
-                      backgroundColor: 'var(--color-primary)',
-                      color: '#000'
+                      backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                      color: 'var(--color-primary)',
+                      borderColor: 'var(--color-primary)'
                     }}
                   >
-                    {barber.specialty}
+                    {barber.specialty || 'Especialista'}
                   </div>
                   
-                  <p className="text-gray-400 font-light text-sm mb-4">
-                    {barber.bio}
+                  <p className="text-sm text-gray-400 font-light mb-4">
+                    {barber.bio || 'Barbero profesional con años de experiencia en cortes modernos y clásicos.'}
                   </p>
 
-                  {barber.email && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <span className="font-light">{barber.email}</span>
-                    </div>
-                  )}
+                  <Link 
+                    href="/register"
+                    className="block text-center px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:opacity-90"
+                    style={{ 
+                      backgroundColor: 'var(--color-primary)',
+                      color: 'var(--color-dark)'
+                    }}
+                  >
+                    Reservar con {barber.name.split(' ')[0]}
+                  </Link>
                 </div>
               </Card>
             ))}
           </div>
         )}
 
-        {/* CTA */}
-        {!loading && barbers.length > 0 && isAuthenticated && (
-          <div className="text-center mt-12">
-            <a 
-              href="/appointments/new"
-              className="inline-block px-8 py-4 rounded-lg font-semibold transition-all duration-200"
-              style={{ 
-                backgroundColor: 'var(--color-primary)',
-                color: '#000'
-              }}
-            >
-              Reservar con tu Barbero Favorito
-            </a>
-          </div>
-        )}
-
-        {!loading && barbers.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-400 font-light text-lg">
-              No hay barberos disponibles en este momento
-            </p>
-          </div>
-        )}
+        {/* CTA Section */}
+        <div 
+          className="mt-16 p-8 rounded-2xl text-center border-2"
+          style={{ 
+            backgroundColor: 'var(--color-dark-light)',
+            borderColor: 'var(--color-primary)'
+          }}
+        >
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Reserva con tu barbero favorito
+          </h2>
+          <p className="text-gray-400 font-light mb-6">
+            Elige el profesional que mejor se adapte a tu estilo
+          </p>
+          <Link 
+            href="/register"
+            className="inline-block px-8 py-4 text-lg font-medium rounded-lg transition-all hover:scale-105"
+            style={{ 
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-dark)'
+            }}
+          >
+            Comenzar Ahora
+          </Link>
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer 
+        className="border-t py-8 mt-12"
+        style={{ borderColor: 'var(--color-dark-lighter)' }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-400 font-light text-sm">
+              © 2024 Black Gold Barbershop. Todos los derechos reservados.
+            </p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link href="/" className="text-gray-400 hover:text-white text-sm font-light">
+                Inicio
+              </Link>
+              <Link href="/services" className="text-gray-400 hover:text-white text-sm font-light">
+                Servicios
+              </Link>
+              <Link href="/barbers" className="text-gray-400 hover:text-white text-sm font-light">
+                Barberos
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

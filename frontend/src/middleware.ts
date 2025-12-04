@@ -4,12 +4,25 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Obtener token de localStorage (lo simulamos verificando si hay un header)
+  // Obtener token de cookies
   const token = request.cookies.get('auth-token')?.value;
   
   // Rutas públicas que NO requieren autenticación
   const publicRoutes = ['/', '/login', '/register', '/services', '/barbers'];
-  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith('/_next'));
+  
+  // Verificar si es ruta pública PRIMERO (verificación exacta)
+  const isPublicRoute = publicRoutes.some(route => {
+    return pathname === route || pathname === `${route}/` || pathname.startsWith('/_next');
+  });
+  
+  // Si es ruta pública, permitir acceso inmediatamente
+  if (isPublicRoute) {
+    // Si ya está autenticado y trata de acceder a login/register, redirigir a dashboard
+    if (token && (pathname === '/login' || pathname === '/register')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    return NextResponse.next();
+  }
   
   // Rutas protegidas que requieren autenticación
   const protectedRoutes = ['/dashboard', '/appointments', '/admin', '/barber'];
@@ -22,25 +35,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Si ya está autenticado y trata de acceder a login/register, redirigir a dashboard
-  if (token && (pathname === '/login' || pathname === '/register')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
   return NextResponse.next();
 }
 
 // Configurar qué rutas deben pasar por el middleware
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*|public).*)',
   ],
 };
