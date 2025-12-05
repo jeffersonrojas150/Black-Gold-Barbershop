@@ -18,6 +18,9 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Black Gold Barbershop",
   description: "Sistema de reservas premium para barbería",
+  icons: {
+    icon: '/icon.png',
+  },
 };
 
 export default function RootLayout({
