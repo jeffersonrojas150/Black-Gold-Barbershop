@@ -78,11 +78,13 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img
-            src="/logo2.png"
-            alt="Black Gold Barbershop"
-            className="w-80 h-auto mx-auto mb-4"
-          />
+          <Link href="/" className="inline-block cursor-pointer hover:opacity-80 transition-opacity">
+            <img
+              src="/logo2.png"
+              alt="Black Gold Barbershop"
+              className="w-64 h-auto mx-auto mb-4"
+            />
+          </Link>
         </div>
 
         {/* Card de Login */}
