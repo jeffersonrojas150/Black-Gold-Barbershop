@@ -146,19 +146,6 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-
-          {/* Usuarios de prueba */}
-          <div
-            className="mt-6 p-4 rounded-lg"
-            style={{ backgroundColor: 'var(--color-dark-lighter)' }}
-          >
-            <p className="text-xs text-gray-500 mb-2 font-light">Usuarios de prueba:</p>
-            <div className="space-y-1 text-xs text-gray-400 font-light">
-              <p>Admin: admin@barbershop.com</p>
-              <p>Cliente: juan@example.com</p>
-              <p>Contraseña: password123</p>
-            </div>
-          </div>
         </Card>
       </div>
     </div>
