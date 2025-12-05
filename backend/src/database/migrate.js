@@ -10,11 +10,9 @@ const migrate = async () => {
   try {
     console.log('🔄 Running database migrations...');
     
-    // Leer el archivo SQL
     const schemaPath = path.join(__dirname, 'schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
     
-    // Dividir por ; y ejecutar cada statement
     const statements = schema
       .split(';')
       .map(s => s.trim())

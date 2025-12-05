@@ -3,12 +3,8 @@ import { validationResult } from 'express-validator';
 import pool from '../config/database.js';
 import { sendTokenResponse } from '../utils/jwt.js';
 
-// @desc    Registro de usuario
-// @route   POST /api/auth/register
-// @access  Public
 export const register = async (req, res) => {
     try {
-        // Validar errores
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({
@@ -19,7 +15,6 @@ export const register = async (req, res) => {
 
         const { name, email, password, phone } = req.body;
 
-        // Verificar si el usuario ya existe
         const [existingUsers] = await pool.query(
             'SELECT id FROM users WHERE email = ?',
             [email]
@@ -32,16 +27,13 @@ export const register = async (req, res) => {
             });
         }
 
-        // Encriptar contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Crear usuario
         const [result] = await pool.query(
             'INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
             [name, email, hashedPassword, phone || null, 'client']
         );
 
-        // Obtener usuario creado
         const [users] = await pool.query(
             'SELECT id, name, email, role FROM users WHERE id = ?',
             [result.insertId]
@@ -57,9 +49,6 @@ export const register = async (req, res) => {
     }
 };
 
-// @desc    Login de usuario
-// @route   POST /api/auth/login
-// @access  Public
 export const login = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -72,7 +61,6 @@ export const login = async (req, res) => {
 
         const { email, password } = req.body;
 
-        // Verificar si el usuario existe
         const [users] = await pool.query(
             'SELECT * FROM users WHERE email = ?',
             [email]
@@ -87,7 +75,6 @@ export const login = async (req, res) => {
 
         const user = users[0];
 
-        // Verificar contraseña
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
@@ -107,9 +94,6 @@ export const login = async (req, res) => {
     }
 };
 
-// @desc    Obtener usuario autenticado
-// @route   GET /api/auth/me
-// @access  Private
 export const getMe = async (req, res) => {
     try {
         const [users] = await pool.query(
@@ -130,9 +114,6 @@ export const getMe = async (req, res) => {
     }
 };
 
-// @desc    Actualizar perfil
-// @route   PUT /api/auth/profile
-// @access  Private
 export const updateProfile = async (req, res) => {
     try {
         const { name, phone } = req.body;
@@ -160,14 +141,10 @@ export const updateProfile = async (req, res) => {
     }
 };
 
-// @desc    Cambiar contraseña
-// @route   PUT /api/auth/password
-// @access  Private
 export const updatePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
 
-        // Obtener usuario con contraseña
         const [users] = await pool.query(
             'SELECT * FROM users WHERE id = ?',
             [req.user.id]
@@ -175,7 +152,6 @@ export const updatePassword = async (req, res) => {
 
         const user = users[0];
 
-        // Verificar contraseña actual
         const isMatch = await bcrypt.compare(currentPassword, user.password);
 
         if (!isMatch) {
@@ -185,7 +161,6 @@ export const updatePassword = async (req, res) => {
             });
         }
 
-        // Encriptar nueva contraseña
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         await pool.query(

@@ -6,7 +6,6 @@ export const protect = async (req, res, next) => {
     try {
         let token;
 
-        // Obtener token del header
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             token = req.headers.authorization.split(' ')[1];
         }
@@ -18,10 +17,8 @@ export const protect = async (req, res, next) => {
             });
         }
 
-        // Verificar token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Obtener usuario de la base de datos
         const [users] = await pool.query(
             'SELECT id, name, email, role FROM users WHERE id = ?',
             [decoded.id]

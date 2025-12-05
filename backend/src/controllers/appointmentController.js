@@ -32,12 +32,10 @@ export const getAppointments = async (req, res) => {
 
         const params = [];
 
-        // Filtrar por rol
         if (userRole === 'client') {
             query += ' AND a.client_id = ?';
             params.push(userId);
         } else if (userRole === 'barber') {
-            // Obtener el barber_id del usuario
             const [barberData] = await pool.query(
                 'SELECT id FROM barbers WHERE user_id = ?',
                 [userId]
@@ -48,7 +46,6 @@ export const getAppointments = async (req, res) => {
             }
         }
 
-        // Filtros adicionales
         if (status) {
             query += ' AND a.status = ?';
             params.push(status);
@@ -111,7 +108,6 @@ export const getAppointment = async (req, res) => {
 
         const appointment = appointments[0];
 
-        // Verificar permisos
         const userRole = req.user.role;
         const userId = req.user.id;
 
@@ -149,14 +145,12 @@ export const createAppointment = async (req, res) => {
         const { barber_id, service_id, appointment_date, appointment_time, notes } = req.body;
         const client_id = req.user.id;
 
-        // Validar que todos los campos estén presentes
         if (!barber_id || !service_id || !appointment_date || !appointment_time) {
             return res.status(400).json({
                 error: 'Todos los campos son requeridos'
             });
         }
 
-        // Validar que la fecha sea futura
         const appointmentDateTime = new Date(`${appointment_date}T${appointment_time}`);
         const now = new Date();
 
@@ -166,7 +160,6 @@ export const createAppointment = async (req, res) => {
             });
         }
 
-        // Verificar que el barbero existe y está activo
         const [barbers] = await pool.query(
             'SELECT id FROM barbers WHERE id = ? AND is_active = 1',
             [barber_id]
@@ -178,7 +171,6 @@ export const createAppointment = async (req, res) => {
             });
         }
 
-        // Verificar que el servicio existe y está activo
         const [services] = await pool.query(
             'SELECT id, duration FROM services WHERE id = ? AND is_active = 1',
             [service_id]
@@ -192,7 +184,6 @@ export const createAppointment = async (req, res) => {
 
         const serviceDuration = services[0].duration;
 
-        // Verificar disponibilidad del barbero
         const dayOfWeek = appointmentDateTime.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
 
         const [schedules] = await pool.query(
@@ -206,7 +197,6 @@ export const createAppointment = async (req, res) => {
             });
         }
 
-        // Verificar que el horario está dentro del horario laboral
         const schedule = schedules[0];
         const appointmentTimeStr = appointment_time + ':00';
 
@@ -216,7 +206,6 @@ export const createAppointment = async (req, res) => {
             });
         }
 
-        // Verificar que no haya conflictos con otras citas
         const [conflicts] = await pool.query(
             `
       SELECT a.id, a.appointment_time, s.duration
@@ -229,7 +218,6 @@ export const createAppointment = async (req, res) => {
             [barber_id, appointment_date]
         );
 
-        // Verificar solapamiento
         for (const conflict of conflicts) {
             const conflictTime = conflict.appointment_time;
             const conflictDuration = conflict.duration;
@@ -251,15 +239,11 @@ export const createAppointment = async (req, res) => {
             }
         }
 
-
-
-        // Crear la cita
         const [result] = await pool.query(
             'INSERT INTO appointments (client_id, barber_id, service_id, appointment_date, appointment_time, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [client_id, barber_id, service_id, appointment_date, appointment_time, notes || null, 'pending']
         );
 
-        // Obtener la cita creada
         const [newAppointment] = await pool.query(
             `
       SELECT 
@@ -303,14 +287,12 @@ export const updateAppointmentStatus = async (req, res) => {
             });
         }
 
-        // Validar que barberos solo puedan marcar como completadas
         if (req.user.role === 'barber' && status !== 'completed') {
             return res.status(403).json({
                 error: 'Los barberos solo pueden marcar citas como completadas'
             });
         }
 
-        // Obtener la cita
         const [appointments] = await pool.query(
             'SELECT * FROM appointments WHERE id = ?',
             [appointmentId]
@@ -324,12 +306,10 @@ export const updateAppointmentStatus = async (req, res) => {
 
         const appointment = appointments[0];
 
-        // Verificar permisos
         const userRole = req.user.role;
         const userId = req.user.id;
 
         if (userRole === 'client') {
-            // Los clientes solo pueden cancelar sus propias citas
             if (appointment.client_id !== userId) {
                 return res.status(403).json({
                     error: 'No tienes permiso para modificar esta cita'
@@ -342,13 +322,11 @@ export const updateAppointmentStatus = async (req, res) => {
             }
         }
 
-        // Actualizar estado
         await pool.query(
             'UPDATE appointments SET status = ? WHERE id = ?',
             [status, appointmentId]
         );
 
-        // Obtener cita actualizada
         const [updatedAppointment] = await pool.query(
             `
       SELECT 
@@ -426,19 +404,16 @@ export const getAppointmentStats = async (req, res) => {
             }
         }
 
-        // Total de citas
         const [totalResult] = await pool.query(
             `SELECT COUNT(*) as total FROM appointments ${whereClause}`,
             params
         );
 
-        // Citas por estado
         const [statusResult] = await pool.query(
             `SELECT status, COUNT(*) as count FROM appointments ${whereClause} GROUP BY status`,
             params
         );
 
-        // Citas del mes actual
         const [monthResult] = await pool.query(
             `SELECT COUNT(*) as count FROM appointments 
        ${whereClause ? whereClause + ' AND' : 'WHERE'} 
@@ -447,7 +422,6 @@ export const getAppointmentStats = async (req, res) => {
             params
         );
 
-        // Ingresos del mes (si es admin)
         let monthlyRevenue = 0;
         if (userRole === 'admin') {
             const [revenueResult] = await pool.query(

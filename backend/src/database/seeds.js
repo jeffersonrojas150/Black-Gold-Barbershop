@@ -5,7 +5,6 @@ const seed = async () => {
     try {
         console.log('🌱 Seeding database...');
 
-        // Hash de contraseña por defecto
         const hashedPassword = await bcrypt.hash('password123', 10);
 
         // 1. Crear usuarios

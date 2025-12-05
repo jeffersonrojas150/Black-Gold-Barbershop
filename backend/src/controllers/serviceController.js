@@ -55,7 +55,6 @@ export const createService = async (req, res) => {
     try {
         const { name, description, price, duration, image_url, is_active } = req.body;
 
-        // Validaciones
         if (!name || !description || !price || !duration) {
             return res.status(400).json({ 
                 error: 'Nombre, descripción, precio y duración son requeridos' 
@@ -107,7 +106,6 @@ export const updateService = async (req, res) => {
     try {
         const { name, description, price, duration, image_url, is_active } = req.body;
 
-        // Verificar si el servicio existe
         const [existing] = await pool.query(
             'SELECT * FROM services WHERE id = ?',
             [req.params.id]
@@ -121,7 +119,6 @@ export const updateService = async (req, res) => {
 
         const currentService = existing[0];
 
-        // Validaciones solo si se proporcionan los campos
         if (price !== undefined && price <= 0) {
             return res.status(400).json({ 
                 error: 'El precio debe ser mayor a 0' 
@@ -134,7 +131,6 @@ export const updateService = async (req, res) => {
             });
         }
 
-        // Actualización parcial - solo actualizar campos proporcionados
         const updates = [];
         const values = [];
 
@@ -195,7 +191,6 @@ export const updateService = async (req, res) => {
 
 export const deleteService = async (req, res) => {
     try {
-        // Verificar si el servicio existe
         const [existing] = await pool.query(
             'SELECT * FROM services WHERE id = ?',
             [req.params.id]
@@ -207,14 +202,12 @@ export const deleteService = async (req, res) => {
             });
         }
 
-        // Verificar si hay citas asociadas
         const [appointments] = await pool.query(
             'SELECT COUNT(*) as count FROM appointments WHERE service_id = ?',
             [req.params.id]
         );
 
         if (appointments[0].count > 0) {
-            // Soft delete: marcar como inactivo en lugar de eliminar
             await pool.query(
                 'UPDATE services SET is_active = 0 WHERE id = ?',
                 [req.params.id]
@@ -224,7 +217,6 @@ export const deleteService = async (req, res) => {
             });
         }
 
-        // Si no tiene citas, eliminar completamente
         await pool.query('DELETE FROM services WHERE id = ?', [req.params.id]);
 
         res.status(200).json({ 
