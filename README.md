@@ -17,7 +17,6 @@ Sistema de reservas premium para barbería con autenticación basada en roles y 
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Base de Datos](#-base-de-datos)
 - [API Endpoints](#-api-endpoints)
-- [Capturas de Pantalla](#-capturas-de-pantalla)
 - [Equipo](#-equipo)
 
 ---
