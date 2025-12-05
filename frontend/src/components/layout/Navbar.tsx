@@ -199,11 +199,7 @@ export const Navbar = () => {
               aria-label="Toggle menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
@@ -231,12 +227,12 @@ export const Navbar = () => {
                   <img
                     src="/logo.png"
                     alt="Black Gold Barbershop"
-                    className="h-10 w-auto"
+                    className="h-8 w-auto"
                   />
                   <div className="flex items-center">
                     <div className="relative">
                       <span
-                        className="text-2xl font-bold tracking-wider"
+                        className="text-xl font-bold tracking-wider"
                         style={{
                           color: 'var(--color-primary)',
                           fontFamily: 'var(--font-display)'
@@ -253,7 +249,7 @@ export const Navbar = () => {
                       ></div>
                     </div>
                     <span
-                      className="text-2xl font-bold tracking-wider ml-1"
+                      className="text-xl font-bold tracking-wider ml-1"
                       style={{
                         color: 'var(--color-primary)',
                         fontFamily: 'var(--font-display)'
