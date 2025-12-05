@@ -51,14 +51,14 @@ export default function LoginPage() {
   // Mostrar loading mientras verifica autenticación
   if (authLoading) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center"
         style={{
           background: 'linear-gradient(to bottom right, #000000, #1A1A1A, #000000)'
         }}
       >
         <div className="text-center">
-          <div 
+          <div
             className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4"
             style={{ borderColor: 'var(--color-primary)' }}
           ></div>
@@ -69,7 +69,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center p-4"
       style={{
         background: 'linear-gradient(to bottom right, #000000, #1A1A1A, #000000)'
@@ -78,31 +78,16 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 
-            className="text-6xl font-bold mb-2 tracking-wider"
-            style={{ 
-              color: 'var(--color-primary)',
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              letterSpacing: '0.05em'
-            }}
-          >
-            Black Gold
-          </h1>
-          <p 
-            className="text-gray-400 tracking-widest uppercase text-sm"
-            style={{ 
-              fontWeight: 300,
-              letterSpacing: '0.2em'
-            }}
-          >
-            Barbershop Premium
-          </p>
+          <img
+            src="/logo2.png"
+            alt="Black Gold Barbershop"
+            className="w-80 h-auto mx-auto mb-4"
+          />
         </div>
 
         {/* Card de Login */}
         <Card className="p-8">
-          <h2 
+          <h2
             className="text-2xl font-semibold text-white mb-6 text-center tracking-wide"
             style={{ fontWeight: 400 }}
           >
@@ -152,8 +137,8 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm font-light">
               ¿No tienes una cuenta?{' '}
-              <Link 
-                href="/register" 
+              <Link
+                href="/register"
                 style={{ color: 'var(--color-primary)' }}
                 className="hover:opacity-80 font-normal"
               >
@@ -163,7 +148,7 @@ export default function LoginPage() {
           </div>
 
           {/* Usuarios de prueba */}
-          <div 
+          <div
             className="mt-6 p-4 rounded-lg"
             style={{ backgroundColor: 'var(--color-dark-lighter)' }}
           >

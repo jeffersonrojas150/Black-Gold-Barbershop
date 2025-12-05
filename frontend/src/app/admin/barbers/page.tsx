@@ -25,6 +25,16 @@ export default function AdminBarbersPage() {
     bio: '',
     image_url: '',
     is_active: true,
+    schedule_type: 'default', // 'default' o 'custom'
+    schedule: [
+      { day: 'monday', day_label: 'Lunes', start: '09:00', end: '18:00', is_available: true },
+      { day: 'tuesday', day_label: 'Martes', start: '09:00', end: '18:00', is_available: true },
+      { day: 'wednesday', day_label: 'Miércoles', start: '09:00', end: '18:00', is_available: true },
+      { day: 'thursday', day_label: 'Jueves', start: '09:00', end: '18:00', is_available: true },
+      { day: 'friday', day_label: 'Viernes', start: '09:00', end: '18:00', is_available: true },
+      { day: 'saturday', day_label: 'Sábado', start: '10:00', end: '16:00', is_available: true },
+      { day: 'sunday', day_label: 'Domingo', start: '09:00', end: '18:00', is_available: false },
+    ],
   });
 
   useEffect(() => {
@@ -50,12 +60,22 @@ export default function AdminBarbersPage() {
       setFormData({
         name: barber.name,
         email: barber.email || '',
-        password: '', // No mostramos la contraseña
+        password: '',
         phone: barber.phone || '',
         specialty: barber.specialty || '',
         bio: barber.bio || '',
         image_url: barber.image_url || '',
         is_active: barber.is_active,
+        schedule_type: 'default',
+        schedule: [
+          { day: 'monday', day_label: 'Lunes', start: '09:00', end: '18:00', is_available: true },
+          { day: 'tuesday', day_label: 'Martes', start: '09:00', end: '18:00', is_available: true },
+          { day: 'wednesday', day_label: 'Miércoles', start: '09:00', end: '18:00', is_available: true },
+          { day: 'thursday', day_label: 'Jueves', start: '09:00', end: '18:00', is_available: true },
+          { day: 'friday', day_label: 'Viernes', start: '09:00', end: '18:00', is_available: true },
+          { day: 'saturday', day_label: 'Sábado', start: '10:00', end: '16:00', is_available: true },
+          { day: 'sunday', day_label: 'Domingo', start: '09:00', end: '18:00', is_available: false },
+        ],
       });
     } else {
       setEditingBarber(null);
@@ -68,6 +88,16 @@ export default function AdminBarbersPage() {
         bio: '',
         image_url: '',
         is_active: true,
+        schedule_type: 'default',
+        schedule: [
+          { day: 'monday', day_label: 'Lunes', start: '09:00', end: '18:00', is_available: true },
+          { day: 'tuesday', day_label: 'Martes', start: '09:00', end: '18:00', is_available: true },
+          { day: 'wednesday', day_label: 'Miércoles', start: '09:00', end: '18:00', is_available: true },
+          { day: 'thursday', day_label: 'Jueves', start: '09:00', end: '18:00', is_available: true },
+          { day: 'friday', day_label: 'Viernes', start: '09:00', end: '18:00', is_available: true },
+          { day: 'saturday', day_label: 'Sábado', start: '10:00', end: '16:00', is_available: true },
+          { day: 'sunday', day_label: 'Domingo', start: '09:00', end: '18:00', is_available: false },
+        ],
       });
     }
     setShowModal(true);
@@ -95,6 +125,8 @@ export default function AdminBarbersPage() {
           bio: formData.bio || null,
           image_url: formData.image_url || null,
           is_active: formData.is_active,
+          schedule_type: formData.schedule_type,
+          schedule: formData.schedule,
         };
 
         await barbersService.update(editingBarber.id, updateData);
@@ -122,6 +154,8 @@ export default function AdminBarbersPage() {
           bio: formData.bio || null,
           image_url: formData.image_url || null,
           is_active: formData.is_active,
+          schedule_type: formData.schedule_type,
+          schedule: formData.schedule,
         };
 
         await barbersService.create(createData);
@@ -172,15 +206,15 @@ export default function AdminBarbersPage() {
           {/* Header */}
           <div className="mb-8 text-center">
             <div className="inline-block">
-              <h1 
+              <h1
                 className="text-gray-400 font-light text-4xl tracking-wider mb-2"
                 style={{ fontWeight: 300 }}
               >
                 Gestión de Barberos
               </h1>
-              <div 
+              <div
                 className="h-0.5"
-                style={{ 
+                style={{
                   width: '100%',
                   backgroundColor: 'var(--color-primary)',
                   margin: '0 auto'
@@ -202,7 +236,7 @@ export default function AdminBarbersPage() {
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
-                <div 
+                <div
                   className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4"
                   style={{ borderColor: 'var(--color-primary)' }}
                 ></div>
@@ -214,19 +248,18 @@ export default function AdminBarbersPage() {
               {barbers.map((barber) => (
                 <Card key={barber.id} className="overflow-hidden">
                   <div className="relative h-48">
-                    <img 
-                      src={barber.image_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'} 
+                    <img
+                      src={barber.image_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'}
                       alt={barber.name}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-2 right-2">
                       <button
                         onClick={() => handleToggleActive(barber)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          barber.is_active 
-                            ? 'bg-green-500/20 text-green-400 border border-green-500' 
-                            : 'bg-gray-500/20 text-gray-400 border border-gray-500'
-                        }`}
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${barber.is_active
+                          ? 'bg-green-500/20 text-green-400 border border-green-500'
+                          : 'bg-gray-500/20 text-gray-400 border border-gray-500'
+                          }`}
                       >
                         {barber.is_active ? 'Activo' : 'Inactivo'}
                       </button>
@@ -238,9 +271,9 @@ export default function AdminBarbersPage() {
                       {barber.name}
                     </h3>
 
-                    <div 
+                    <div
                       className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-3 border"
-                      style={{ 
+                      style={{
                         backgroundColor: 'rgba(212, 175, 55, 0.2)',
                         color: 'var(--color-primary)',
                         borderColor: 'var(--color-primary)'
@@ -248,7 +281,7 @@ export default function AdminBarbersPage() {
                     >
                       {barber.specialty || 'Especialista'}
                     </div>
-                    
+
                     <p className="text-sm text-gray-400 font-light mb-3">
                       {barber.bio || 'Barbero profesional con años de experiencia'}
                     </p>
@@ -286,11 +319,11 @@ export default function AdminBarbersPage() {
 
         {/* Modal */}
         {showModal && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
             onClick={handleCloseModal}
           >
-            <div 
+            <div
               className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl border-2"
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
               style={{
@@ -377,6 +410,105 @@ export default function AdminBarbersPage() {
                     placeholder="https://ejemplo.com/foto.jpg"
                   />
 
+                  {/* Sección de Horarios */}
+                  <div className="border-t pt-4 mt-4" style={{ borderColor: 'var(--color-dark-lighter)' }}>
+                    <label className="block text-sm font-medium text-gray-300 mb-3">
+                      Horarios de Trabajo
+                    </label>
+
+                    {/* Selector de tipo de horario */}
+                    <div className="mb-4 space-y-2">
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="schedule_type"
+                          value="default"
+                          checked={formData.schedule_type === 'default'}
+                          onChange={() => setFormData({ ...formData, schedule_type: 'default' })}
+                          className="w-4 h-4"
+                          style={{ accentColor: 'var(--color-primary)' }}
+                        />
+                        <span className="text-sm text-gray-300 font-light">
+                          Horario por defecto (Lun-Vie 9am-6pm, Sáb 10am-4pm)
+                        </span>
+                      </label>
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="schedule_type"
+                          value="custom"
+                          checked={formData.schedule_type === 'custom'}
+                          onChange={() => setFormData({ ...formData, schedule_type: 'custom' })}
+                          className="w-4 h-4"
+                          style={{ accentColor: 'var(--color-primary)' }}
+                        />
+                        <span className="text-sm text-gray-300 font-light">
+                          Horario personalizado
+                        </span>
+                      </label>
+                    </div>
+
+                    {/* Horario personalizado */}
+                    {formData.schedule_type === 'custom' && (
+                      <div className="space-y-3 max-h-80 overflow-y-auto">
+                        {formData.schedule.map((daySchedule, index) => (
+                          <div
+                            key={daySchedule.day}
+                            className="flex items-center space-x-3 p-3 rounded-lg"
+                            style={{ backgroundColor: 'var(--color-dark-lighter)' }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={daySchedule.is_available}
+                              onChange={(e) => {
+                                const newSchedule = [...formData.schedule];
+                                newSchedule[index].is_available = e.target.checked;
+                                setFormData({ ...formData, schedule: newSchedule });
+                              }}
+                              className="w-4 h-4"
+                              style={{ accentColor: 'var(--color-primary)' }}
+                            />
+                            <span className="text-sm text-white font-medium w-24">
+                              {daySchedule.day_label}
+                            </span>
+                            <input
+                              type="time"
+                              value={daySchedule.start}
+                              onChange={(e) => {
+                                const newSchedule = [...formData.schedule];
+                                newSchedule[index].start = e.target.value;
+                                setFormData({ ...formData, schedule: newSchedule });
+                              }}
+                              disabled={!daySchedule.is_available}
+                              className="px-3 py-2 rounded-lg text-sm font-light"
+                              style={{
+                                backgroundColor: 'var(--color-dark)',
+                                borderColor: 'var(--color-dark-light)',
+                                color: daySchedule.is_available ? 'white' : 'gray',
+                              }}
+                            />
+                            <span className="text-gray-400">-</span>
+                            <input
+                              type="time"
+                              value={daySchedule.end}
+                              onChange={(e) => {
+                                const newSchedule = [...formData.schedule];
+                                newSchedule[index].end = e.target.value;
+                                setFormData({ ...formData, schedule: newSchedule });
+                              }}
+                              disabled={!daySchedule.is_available}
+                              className="px-3 py-2 rounded-lg text-sm font-light"
+                              style={{
+                                backgroundColor: 'var(--color-dark)',
+                                borderColor: 'var(--color-dark-light)',
+                                color: daySchedule.is_available ? 'white' : 'gray',
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"

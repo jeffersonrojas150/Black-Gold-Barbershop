@@ -335,22 +335,9 @@ export const updateAppointmentStatus = async (req, res) => {
                     error: 'No tienes permiso para modificar esta cita'
                 });
             }
-
             if (status !== 'cancelled') {
                 return res.status(403).json({
                     error: 'Solo puedes cancelar citas'
-                });
-            }
-
-            // Validar que se cancele con al menos 2 días de anticipación
-            const appointmentDate = new Date(appointment.appointment_date);
-            const now = new Date();
-            const diffTime = appointmentDate - now;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays < 2) {
-                return res.status(400).json({
-                    error: 'Las citas deben cancelarse con al menos 2 días de anticipación'
                 });
             }
         }

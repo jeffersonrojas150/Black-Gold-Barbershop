@@ -25,14 +25,14 @@ export default function MyAppointmentsPage() {
       setLoading(true);
       const filters = filter === 'all' ? {} : { status: filter };
       const response = await appointmentsService.getAll(filters);
-      
+
       // Ordenar por fecha más reciente primero
       const sorted = (response.data || []).sort((a, b) => {
         const dateA = new Date(`${a.appointment_date}T${a.appointment_time}`);
         const dateB = new Date(`${b.appointment_date}T${b.appointment_time}`);
         return dateB.getTime() - dateA.getTime();
       });
-      
+
       setAppointments(sorted);
     } catch (error) {
       console.error('Error loading appointments:', error);
@@ -42,17 +42,6 @@ export default function MyAppointmentsPage() {
   };
 
   const handleCancelAppointment = async (id: number, appointmentDate: string) => {
-    // Verificar que faltan al menos 2 días
-    const appointmentDateTime = new Date(appointmentDate);
-    const now = new Date();
-    const diffTime = appointmentDateTime.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 2) {
-      alert('Solo puedes cancelar citas con al menos 2 días de anticipación');
-      return;
-    }
-
     if (!confirm('¿Estás seguro de que deseas cancelar esta cita?')) {
       return;
     }
@@ -87,16 +76,7 @@ export default function MyAppointmentsPage() {
   };
 
   const canCancel = (appointment: Appointment) => {
-    if (appointment.status === 'cancelled' || appointment.status === 'completed') {
-      return false;
-    }
-
-    const appointmentDateTime = new Date(`${appointment.appointment_date}T${appointment.appointment_time}`);
-    const now = new Date();
-    const diffTime = appointmentDateTime.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return diffDays >= 2;
+    return appointment.status === 'pending' || appointment.status === 'confirmed';
   };
 
   const formatDate = (dateString: string) => {
@@ -121,25 +101,25 @@ export default function MyAppointmentsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="text-center mb-12">
-          <div className="inline-block">
-            <h1 
-              className="text-yellow-400 font-light text-4xl tracking-wider mb-2"
-              style={{ fontWeight: 300 }}
-            >
-              Mis Citas
-            </h1>
-            <div 
-              className="h-0.5 mx-auto"
-              style={{ 
-                width: '100%',
-                backgroundColor: 'var(--color-primary)'
-              }}
-            ></div>
+            <div className="inline-block">
+              <h1
+                className="text-yellow-400 font-light text-4xl tracking-wider mb-2"
+                style={{ fontWeight: 300 }}
+              >
+                Mis Citas
+              </h1>
+              <div
+                className="h-0.5 mx-auto"
+                style={{
+                  width: '100%',
+                  backgroundColor: 'var(--color-primary)'
+                }}
+              ></div>
+            </div>
+            <p className="text-gray-400 font-light text-sm mt-4">
+              Gestiona tus reservas y ve tu historial
+            </p>
           </div>
-          <p className="text-gray-400 font-light text-sm mt-4">
-            Gestiona tus reservas y ve tu historial
-          </p>
-        </div>
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3 mb-6">
@@ -153,11 +133,10 @@ export default function MyAppointmentsPage() {
               <button
                 key={filterOption.value}
                 onClick={() => setFilter(filterOption.value)}
-                className={`px-4 py-2 rounded-lg font-light transition-colors ${
-                  filter === filterOption.value
-                    ? 'text-black font-semibold'
-                    : 'text-white'
-                }`}
+                className={`px-4 py-2 rounded-lg font-light transition-colors ${filter === filterOption.value
+                  ? 'text-black font-semibold'
+                  : 'text-white'
+                  }`}
                 style={{
                   backgroundColor: filter === filterOption.value
                     ? 'var(--color-primary)'
@@ -173,7 +152,7 @@ export default function MyAppointmentsPage() {
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
-                <div 
+                <div
                   className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4"
                   style={{ borderColor: 'var(--color-primary)' }}
                 ></div>
@@ -190,10 +169,10 @@ export default function MyAppointmentsPage() {
               <p className="text-gray-400 font-light mb-6">
                 ¿Listo para tu próximo corte?
               </p>
-              <a 
+              <a
                 href="/appointments/new"
                 className="inline-block px-6 py-3 rounded-lg font-semibold transition-all"
-                style={{ 
+                style={{
                   backgroundColor: 'var(--color-primary)',
                   color: '#000'
                 }}
@@ -279,12 +258,6 @@ export default function MyAppointmentsPage() {
                           Cancelar Cita
                         </Button>
                       )}
-
-                      {!canCancel(appointment) && appointment.status !== 'cancelled' && appointment.status !== 'completed' && (
-                        <p className="text-xs text-gray-500 text-center font-light">
-                          No se puede cancelar<br/>(menos de 2 días)
-                        </p>
-                      )}
                     </div>
                   </div>
                 </Card>
@@ -295,10 +268,10 @@ export default function MyAppointmentsPage() {
           {/* CTA for new appointment */}
           {!loading && appointments.length > 0 && (
             <div className="text-center mt-8">
-              <a 
+              <a
                 href="/appointments/new"
                 className="inline-block px-8 py-4 rounded-lg font-semibold transition-all hover:opacity-90"
-                style={{ 
+                style={{
                   backgroundColor: 'var(--color-primary)',
                   color: '#000'
                 }}

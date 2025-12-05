@@ -223,24 +223,24 @@ export const getBarberAvailability = async (req, res) => {
 // @access  Admin
 export const createBarber = async (req, res) => {
     const connection = await pool.getConnection();
-    
+
     try {
         await connection.beginTransaction();
 
-        const { name, email, password, specialty, bio, image_url, is_active, phone } = req.body;
+        const { name, email, password, specialty, bio, image_url, is_active, phone, schedule_type, schedule } = req.body;
 
         // Validaciones
         if (!name || !email || !password) {
             await connection.rollback();
-            return res.status(400).json({ 
-                error: 'Nombre, email y contraseña son requeridos' 
+            return res.status(400).json({
+                error: 'Nombre, email y contraseña son requeridos'
             });
         }
 
         if (password.length < 6) {
             await connection.rollback();
-            return res.status(400).json({ 
-                error: 'La contraseña debe tener al menos 6 caracteres' 
+            return res.status(400).json({
+                error: 'La contraseña debe tener al menos 6 caracteres'
             });
         }
 
@@ -252,8 +252,8 @@ export const createBarber = async (req, res) => {
 
         if (existingUser.length > 0) {
             await connection.rollback();
-            return res.status(400).json({ 
-                error: 'El email ya está registrado' 
+            return res.status(400).json({
+                error: 'El email ya está registrado'
             });
         }
 
@@ -277,6 +277,41 @@ export const createBarber = async (req, res) => {
             [userId, specialty || null, bio || null, image_url || null, is_active !== false ? 1 : 0]
         );
 
+        const barberId = barberResult.insertId;
+
+        // 3. Crear horarios
+        let scheduleData = [];
+
+        if (schedule_type === 'default') {
+            // Horario por defecto
+            scheduleData = [
+                { day: 'monday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                { day: 'tuesday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                { day: 'wednesday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                { day: 'thursday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                { day: 'friday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                { day: 'saturday', start: '10:00:00', end: '16:00:00', is_available: 1 },
+            ];
+        } else if (schedule_type === 'custom' && schedule && Array.isArray(schedule)) {
+            // Horario personalizado
+            scheduleData = schedule
+                .filter(s => s.is_available)
+                .map(s => ({
+                    day: s.day,
+                    start: s.start + ':00',
+                    end: s.end + ':00',
+                    is_available: 1
+                }));
+        }
+
+        // Insertar horarios
+        for (const sched of scheduleData) {
+            await connection.query(
+                'INSERT INTO barber_schedules (barber_id, day_of_week, start_time, end_time, is_available) VALUES (?, ?, ?, ?, ?)',
+                [barberId, sched.day, sched.start, sched.end, sched.is_available]
+            );
+        }
+
         await connection.commit();
 
         // Obtener el barbero completo con info del usuario
@@ -294,7 +329,7 @@ export const createBarber = async (req, res) => {
              FROM barbers b
              INNER JOIN users u ON b.user_id = u.id
              WHERE b.id = ?`,
-            [barberResult.insertId]
+            [barberId]
         );
 
         res.status(201).json({
@@ -317,19 +352,19 @@ export const createBarber = async (req, res) => {
 // @access  Admin
 export const updateBarber = async (req, res) => {
     const connection = await pool.getConnection();
-    
+
     try {
         await connection.beginTransaction();
 
         const { id } = req.params;
-        const { name, email, specialty, bio, image_url, is_active, phone } = req.body;
+        const { name, email, specialty, bio, image_url, is_active, phone, schedule_type, schedule } = req.body;
 
         // Verificar si el barbero existe
         const [existing] = await connection.query(
             'SELECT user_id FROM barbers WHERE id = ?',
             [id]
         );
-        
+
         if (existing.length === 0) {
             await connection.rollback();
             return res.status(404).json({
@@ -406,6 +441,47 @@ export const updateBarber = async (req, res) => {
             );
         }
 
+        // Actualizar horarios si se proporcionaron
+        if (schedule_type && schedule) {
+            // Eliminar horarios existentes
+            await connection.query(
+                'DELETE FROM barber_schedules WHERE barber_id = ?',
+                [id]
+            );
+
+            let scheduleData = [];
+
+            if (schedule_type === 'default') {
+                // Horario por defecto
+                scheduleData = [
+                    { day: 'monday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                    { day: 'tuesday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                    { day: 'wednesday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                    { day: 'thursday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                    { day: 'friday', start: '09:00:00', end: '18:00:00', is_available: 1 },
+                    { day: 'saturday', start: '10:00:00', end: '16:00:00', is_available: 1 },
+                ];
+            } else if (schedule_type === 'custom' && Array.isArray(schedule)) {
+                // Horario personalizado
+                scheduleData = schedule
+                    .filter(s => s.is_available)
+                    .map(s => ({
+                        day: s.day,
+                        start: s.start + ':00',
+                        end: s.end + ':00',
+                        is_available: 1
+                    }));
+            }
+
+            // Insertar nuevos horarios
+            for (const sched of scheduleData) {
+                await connection.query(
+                    'INSERT INTO barber_schedules (barber_id, day_of_week, start_time, end_time, is_available) VALUES (?, ?, ?, ?, ?)',
+                    [id, sched.day, sched.start, sched.end, sched.is_available]
+                );
+            }
+        }
+
         await connection.commit();
 
         // Obtener el barbero actualizado
@@ -446,7 +522,7 @@ export const updateBarber = async (req, res) => {
 // @access  Admin
 export const deleteBarber = async (req, res) => {
     const connection = await pool.getConnection();
-    
+
     try {
         await connection.beginTransaction();
 
@@ -457,7 +533,7 @@ export const deleteBarber = async (req, res) => {
             'SELECT user_id FROM barbers WHERE id = ?',
             [id]
         );
-        
+
         if (existing.length === 0) {
             await connection.rollback();
             return res.status(404).json({
@@ -480,8 +556,8 @@ export const deleteBarber = async (req, res) => {
                 [id]
             );
             await connection.commit();
-            return res.status(200).json({ 
-                message: 'Barbero desactivado (tiene citas asociadas)' 
+            return res.status(200).json({
+                message: 'Barbero desactivado (tiene citas asociadas)'
             });
         }
 
@@ -491,8 +567,8 @@ export const deleteBarber = async (req, res) => {
 
         await connection.commit();
 
-        res.status(200).json({ 
-            message: 'Barbero eliminado exitosamente' 
+        res.status(200).json({
+            message: 'Barbero eliminado exitosamente'
         });
     } catch (error) {
         await connection.rollback();
