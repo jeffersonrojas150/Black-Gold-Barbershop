@@ -15,19 +15,16 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> => {
   let data;
   
-  // Intentar parsear JSON
   try {
     data = await response.json();
   } catch (parseError) {
     throw new Error('Error al procesar la respuesta del servidor');
   }
   
-  // Si la respuesta es exitosa, retornar data
   if (response.ok) {
     return data;
   }
   
-  // Si no es exitosa, lanzar error con mensaje apropiado
   const errorMessage = 
     (data?.error && String(data.error)) ||
     (data?.message && String(data.message)) ||

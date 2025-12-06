@@ -14,7 +14,6 @@ export default function HomePage() {
     setMounted(true);
   }, []);
 
-  // Si está autenticado, redirigir al dashboard
   useEffect(() => {
     if (mounted && !loading && isAuthenticated) {
       router.push('/dashboard');
@@ -34,11 +33,9 @@ export default function HomePage() {
       className="min-h-screen flex flex-col"
       style={{ backgroundColor: 'var(--color-dark)' }}
     >
-      {/* Navbar Simple */}
       <nav className="border-b" style={{ borderColor: 'var(--color-dark-lighter)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
             <div className="flex items-center space-x-3">
               <img
                 src="/logo.png"
@@ -76,7 +73,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
               <Link
                 href="/services"
@@ -109,7 +105,6 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Mobile Hamburger */}
             <button
               onClick={() => {
                 const menu = document.getElementById('mobile-menu-landing');
@@ -126,7 +121,6 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* Mobile Menu */}
           <div id="mobile-menu-landing" className="hidden md:hidden pb-4 border-t mt-2" style={{ borderColor: 'var(--color-dark-lighter)' }}>
             <div className="flex flex-col space-y-3 pt-4">
               <Link
@@ -162,11 +156,9 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Texto */}
             <div>
               <h1
                 className="text-5xl md:text-6xl font-bold mb-6"
@@ -206,7 +198,6 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Stats */}
               <div className="grid grid-cols-3 gap-6">
                 <div>
                   <p className="text-3xl font-bold" style={{ color: 'var(--color-primary)' }}>
@@ -229,7 +220,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Imagen */}
             <div className="relative">
               <div
                 className="rounded-2xl overflow-hidden shadow-2xl border-4"
@@ -249,7 +239,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Features Section */}
         <div
           className="py-20 border-t"
           style={{
@@ -312,7 +301,6 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer
         className="border-t py-8"
         style={{ borderColor: 'var(--color-dark-lighter)' }}

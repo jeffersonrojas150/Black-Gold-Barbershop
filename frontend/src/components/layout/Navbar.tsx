@@ -53,7 +53,6 @@ export const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo con línea divisoria elegante */}
           <Link href="/dashboard" className="flex items-center space-x-3">
             <img
               src="/logo.png"
@@ -91,7 +90,6 @@ export const Navbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link
               href="/dashboard"
@@ -171,7 +169,6 @@ export const Navbar = () => {
             )}
           </div>
 
-          {/* User Info + Hamburger */}
           <div className="flex items-center space-x-4">
             <div className="hidden sm:flex items-center space-x-4">
               {getRoleBadge()}
@@ -191,7 +188,6 @@ export const Navbar = () => {
               Salir
             </button>
 
-            {/* Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 rounded-lg"
@@ -206,21 +202,17 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar Menu (estilo drawer) */}
       {mobileMenuOpen && (
         <>
-          {/* Overlay oscuro */}
           <div
             className="fixed inset-0 bg-black/70 z-40 md:hidden"
             onClick={() => setMobileMenuOpen(false)}
           ></div>
 
-          {/* Sidebar */}
           <div
             className="fixed top-0 left-0 bottom-0 w-72 z-50 md:hidden shadow-2xl overflow-y-auto"
             style={{ backgroundColor: 'var(--color-dark)' }}
           >
-            {/* Header del Sidebar */}
             <div className="p-6 border-b" style={{ borderColor: 'var(--color-dark-lighter)' }}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
@@ -270,7 +262,6 @@ export const Navbar = () => {
                 </button>
               </div>
 
-              {/* User Info */}
               <div className="flex items-center space-x-3">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
@@ -288,7 +279,6 @@ export const Navbar = () => {
               </div>
             </div>
 
-            {/* Menu Items */}
             <div className="py-4">
               <Link
                 href="/dashboard"
@@ -381,7 +371,6 @@ export const Navbar = () => {
                 </Link>
               )}
 
-              {/* Botón de Cerrar Sesión */}
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-3 px-6 py-3 w-full text-left text-red-400 hover:bg-red-500/10 transition-colors mt-4"

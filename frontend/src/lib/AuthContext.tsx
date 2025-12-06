@@ -40,7 +40,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar token en localStorage y cookies
     const savedToken = localStorage.getItem('token') || getCookie('auth-token');
     if (savedToken) {
       setToken(savedToken);
@@ -75,11 +74,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const data = await res.json();
 
       if (!res.ok) {
-        // Manejar error del backend
         throw new Error(data.error || data.message || 'Error al iniciar sesión');
       }
 
-      // Si es exitoso, guardar token y usuario - soporta ambas estructuras
       const token = data.data?.token || data.token;
       const userData = data.data?.user || data.user;
 
@@ -95,7 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
-      throw error; // Re-lanzar para que el componente lo capture
+      throw error;
     }
   };
 
@@ -103,12 +100,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const response = await authService.register({ name, email, password, phone });
       
-      // Soportar ambas estructuras de respuesta
       const token = response.data?.token || response.token;
       const userData = response.data?.user || response.user;
 
       if (token && userData) {
-        // Guardar en localStorage Y en cookies
         localStorage.setItem('token', token);
         setCookie('auth-token', token, 7);
         
@@ -124,7 +119,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-    // Limpiar localStorage y cookies
     localStorage.removeItem('token');
     deleteCookie('auth-token');
     

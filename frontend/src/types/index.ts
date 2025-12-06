@@ -69,7 +69,6 @@ export interface Appointment {
   notes?: string;
   created_at?: string;
   updated_at?: string;
-  // Datos combinados de las relaciones
   service_name?: string;
   service_price?: number;
   service_duration?: number;
